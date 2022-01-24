@@ -2,7 +2,7 @@ import random
 from itertools import combinations
 from collections import OrderedDict
 
-TARGET_SCORE = 1000
+TARGET_SCORE = 2000
 POINTS = OrderedDict((
     ('123456', 1500),
     ('12345', 500),
@@ -192,7 +192,7 @@ class State(object):
 
         if len(new_state.available_combos) == 0 and len(new_state.state_dice.remaining_dice) != 0:
             # Farkle !
-            return State(new_state_data, score=0, score_total=self.score_total, turn_is_over=True)
+            return State(StateDice(roll_dice(6), []), score=0, score_total=self.score_total,  need_to_score=True, turn_is_over=True)
         else:
             return new_state
 
@@ -230,4 +230,4 @@ class State(object):
         :return: end state with total score
         """
         new_score_total = self.score + self.score_total
-        return State(StateDice(roll_dice(6), []), score_total=new_score_total, need_to_score=True, turn_is_over=True)
+        return State(StateDice(roll_dice(6), []), score=self.score, score_total=new_score_total, need_to_score=True, turn_is_over=True)
