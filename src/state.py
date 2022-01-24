@@ -1,4 +1,5 @@
 import random
+import enum
 from itertools import combinations
 from collections import OrderedDict
 
@@ -100,6 +101,15 @@ def combination(original_list: list[str]):
     return list_combinations
 
 
+class Action(enum.Enum):
+    throw = 1
+    score = 2
+    bank = 3
+
+    farkle = 4
+    hotDice = 5
+
+
 class State(object):
     """
     Basic class of game information.
@@ -121,15 +131,18 @@ class State(object):
         turn_is_over: if this turn has overed
     """
 
-    def __init__(self, state_dice: StateDice, score=0, score_total=0, turn_is_over=False, need_to_score=False):
+    def __init__(self, state_dice: StateDice, last_action: Action = None, score=0, score_total=0, turn_is_over=False,
+                 need_to_score=False):
         self.state_dice = state_dice
+        self.last_action = last_action
         self.score = score
         self.score_total = score_total
         self.need_to_score = need_to_score
         self.turn_is_over = turn_is_over
 
     def __repr__(self):
-        res = str(self.state_dice) + ", score: " + str(self.score) + ", score total: " + str(self.score_total)
+        res = str(self.state_dice) + ', last_action: ' + str(self.last_action) + ", score: " + str(
+            self.score) + ", score total: " + str(self.score_total)
         res += ", need to score: " + str(self.need_to_score) + ", turn_is_over: " + str(self.turn_is_over)
         return res
 
@@ -188,11 +201,12 @@ class State(object):
         else:
             new_remaining_dice = roll_dice(self.state_dice.number_of_remaining())
         new_state_data = StateDice(new_remaining_dice, self.state_dice.scoring_dice)
-        new_state = State(new_state_data, self.score, self.score_total, need_to_score=True)
+        new_state = State(new_state_data, Action.throw, self.score, self.score_total, need_to_score=True)
 
         if len(new_state.available_combos) == 0 and len(new_state.state_dice.remaining_dice) != 0:
             # Farkle !
-            return State(StateDice(roll_dice(6), []), score=0, score_total=self.score_total,  need_to_score=True, turn_is_over=True)
+            return State(StateDice(roll_dice(6), []), Action.farkle, score=0, score_total=self.score_total,
+                         need_to_score=True, turn_is_over=True)
         else:
             return new_state
 
@@ -215,11 +229,12 @@ class State(object):
             temp_score += POINTS[scoring_combo]
 
         new_state_data = StateDice(new_remaining_dice, new_scoring_dice, scoring_combos, temp_score)
-        new_state = State(new_state_data, new_score, self.score_total)
+        new_state = State(new_state_data, Action.score, new_score, self.score_total)
 
         if len(new_state.state_dice.remaining_dice) == 0:
             # Hot dice!
-            return State(StateDice(roll_dice(6), [], scoring_combos, temp_score), new_state.score, self.score_total,
+            return State(StateDice(roll_dice(6), [], scoring_combos, temp_score), Action.hotDice, new_state.score,
+                         self.score_total,
                          need_to_score=True)
         else:
             return new_state
@@ -230,4 +245,9 @@ class State(object):
         :return: end state with total score
         """
         new_score_total = self.score + self.score_total
-        return State(StateDice(roll_dice(6), []), score=self.score, score_total=new_score_total, need_to_score=True, turn_is_over=True)
+        return State(StateDice(roll_dice(6), []), Action.bank, score=0, score_total=new_score_total,
+                     need_to_score=True, turn_is_over=True)
+
+    def action_farkle(self):
+        return State(StateDice(roll_dice(6), []), Action.farkle, score=0, score_total=self.score_total,
+                     need_to_score=True, turn_is_over=True)

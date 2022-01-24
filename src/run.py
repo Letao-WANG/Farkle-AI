@@ -23,18 +23,21 @@ def human_play_turn(state: State):
             for index, next_state in enumerate(next_states, 1):
                 print(str(index) + ') Choose ' + str(next_state.state_dice.temp_dice) + ' for scoring ' +
                       str(next_state.state_dice.temp_score) + ' points')
-            choice = input_int(len(next_states))
-
-            state = next_states[choice - 1]
-            if len(state.state_dice.remaining_dice) == 6:
-                print('Hot dice!')
+            if len(next_states) != 0:
+                choice = input_int(len(next_states))
+                state = next_states[choice - 1]
+                if state.last_action == Action.hotDice:
+                    print('Hot dice!')
+            else:  # if last state has no available combos
+                print('Farkle!')
+                state = state.action_farkle()
         else:
             print('1) Choose to continue rolling the remaining dice ')
             message = '2) Choose to bank ' + str(state.score) + ' points'
             print(message)
             choice = input_int(2)
             state = state.next_states[choice - 1]
-            if state.state_dice.temp_score == 0:
+            if state.last_action == Action.farkle:
                 print('Farkle!')
     print('Human total score:' + str(state.score_total))
     return state
@@ -48,20 +51,22 @@ def ai_strategy(next_states):
 def ai_play_turn(state: State):
     print(20 * '-' + ' AI turn begins: ' + 20 * '-')
     while not state.turn_is_over:
-        # print('Original state: ' + str(state))
         next_states = state.next_states
-        state = ai_strategy(next_states)
-        if (not state.need_to_score) and (state.turn_is_over == False):
-            print('-> Action score ')
-        elif state is next_states[0]:
-            print('-> Action throw ')
-        elif state is next_states[1]:
-            print('-> Action bank ')
-
-        if state.score == 0:
+        if len(next_states) == 0:
             print('Farkle!')
-        else:
-            print('Next state: ' + str(state) + '\n')
+            return state.action_farkle()
+        state = ai_strategy(next_states)
+        if state.last_action == Action.score:
+            print('-> Action score ')
+        elif state.last_action == Action.throw:
+            print('-> Action throw ')
+        elif state.last_action == Action.bank:
+            print('-> Action bank ')
+        elif state.last_action == Action.hotDice:
+            print('Hot dice!')
+        elif state.last_action == Action.farkle:
+            print('Farkle!')
+        print('Next state: ' + str(state) + '\n')
     return state
 
 
@@ -97,9 +102,6 @@ def main():
 
     ai_state = State(StateDice('', [])).action_throw()
     original_state = State(StateDice('', [])).action_throw()
-
-    # For testing hot dice:
-    # original_state = State(StateDice('123456', []), need_to_score=True)
 
     play_game(original_state, ai_state)
 
