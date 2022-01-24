@@ -30,8 +30,8 @@ def human_play_turn(state: State):
                 print('Hot dice!')
         else:
             print('1) Choose to continue rolling the remaining dice ')
-            print('2) Choose ' + str(state.state_dice.scoring_dice) + ' for banking ' +
-                  str(state.score) + ' points')
+            message = '2) Choose to bank ' + str(state.score) + ' points' if state.score else '2) Pass this turn'
+            print(message)
             choice = input_int(2)
             state = state.next_states[choice - 1]
             if len(state.available_dices) == 0:
@@ -48,9 +48,17 @@ def ai_strategy(next_states):
 def ai_play_turn(state: State):
     print(20 * '-' + ' AI turn begins: ' + 20 * '-')
     while not state.turn_is_over:
+        print('Original state: ' + str(state))
         next_states = state.next_states
         state = ai_strategy(next_states)
-        print(str(state))
+        if (not state.need_to_score) and (state.turn_is_over == False):
+            print('-> Action score ')
+        elif state is next_states[0]:
+            print('-> Action throw ')
+        elif state is next_states[1]:
+            print('-> Action bank ')
+
+        print('Next state: ' + str(state) + '\n')
     return state
 
 
@@ -86,6 +94,7 @@ def main():
 
     original_state = State(StateDice('', [])).action_throw()
     ai_state = State(StateDice(roll_dice(6), []), need_to_score=True)
+    original_state = State(StateDice(roll_dice(6), []), need_to_score=True)
     play_game(original_state, ai_state)
 
 
