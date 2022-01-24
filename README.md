@@ -1,5 +1,5 @@
 # Farkle-AI
-
+![Farkle logo](resource/Farkle.png "Farkle logo")
 **Farkle,** also known as Henry's Ambition, is a dice game in Kingdom Come: Deliverance that can be played in almost every tavern. 
 And the purpose of this project is mainly to simulate the process of player and AI battles.
 
