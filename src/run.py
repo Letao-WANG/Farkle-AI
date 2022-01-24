@@ -79,10 +79,15 @@ def play_game(state: State, ai_state: State):
 
 
 def main():
-    print('Welcome to the src game!')
+    print('Welcome to the Farkle game!')
+    logo = open('../resource/logo.txt', 'r')
+    print(logo.read())
+    logo.close()
+
     original_state = State(StateDice('', [])).action_throw()
     ai_state = State(StateDice(roll_dice(6), []), need_to_score=True)
     play_game(original_state, ai_state)
 
 
-main()
+if __name__ == "__main__":
+    main()
