@@ -251,3 +251,6 @@ class State(object):
     def action_farkle(self):
         return State(StateDice(roll_dice(6), []), Action.farkle, score=0, score_total=self.score_total,
                      need_to_score=True, turn_is_over=True)
+
+    def pop(self):
+        return self.next_states
