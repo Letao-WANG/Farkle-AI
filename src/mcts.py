@@ -12,7 +12,8 @@ class Node(object):
         self.children = []
 
     def __repr__(self):
-        return 'value: ' + str(self.value) + ', numbe visit: ' + str(self.number_visit) + '\n'
+        return 'Scoring dice: %-15s' % self.state.state_dice.scoring_dice + ' state score: ' + str(self.state.score) +\
+               ', value: ' + str(self.value) + ', number visit: ' + str(self.number_visit) + '\n'
 
     @property
     def n(self):
@@ -55,12 +56,18 @@ class Node(object):
 
     def best_child(self, c_param=1.4):
         if not self.children:
-            print('WRONG!')
-            return self
+            # Farkle!
+            return Node(self.state.action_farkle(), self)
         choices_weights = [
-            self.value + c_param * np.sqrt((2 * np.log(self.n) / c.n))
+            0.01 * c.value + c_param * np.sqrt((2 * np.log(self.n) / c.n))
             for c in self.children
         ]
+
+        # for c in self.children:
+        #     print('value: ' + str(self.value) + ', para: ' + str(c_param * np.sqrt((2 * np.log(self.n) / c.n))))
+        # if c_param==0:
+        #     print('choices: ' + str(choices_weights))
+        #     print('children: ' + str(self.children))
         return self.children[np.argmax(choices_weights)]
 
 
@@ -79,14 +86,14 @@ class Tree:
             v.backpropagation(result)
         return self.root.best_child(c_param=0)
 
-    # def select(self):
-    #     current_node = self.root
-    #     while not current_node.is_terminal_node():
-    #
-    #         # Expansion
-    #         if not current_node.is_fully_expanded():
-    #             return current_node.expand()
-    #         else:
-    #             # Selection
-    #             current_node = current_node.best_child()
-    #     return current_node
+    def select(self):
+        current_node = self.root
+        while not current_node.is_terminal_node():
+
+            # Expansion
+            if not current_node.is_fully_expanded():
+                return current_node.expand()
+            else:
+                # Selection
+                current_node = current_node.best_child()
+        return current_node

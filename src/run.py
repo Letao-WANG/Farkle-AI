@@ -1,4 +1,5 @@
 from state import *
+from mcts import *
 
 
 def input_int(max_number: int):
@@ -48,6 +49,20 @@ def ai_strategy(next_states):
     return state
 
 
+def choose_next_ai(ai_state: State):
+    """
+
+    :param ai_state:
+    :return: State
+    """
+    next_states = ai_state.next_states
+    root = Node(ai_state)
+    tree = Tree(root)
+
+    best_child = tree.best_action(500)
+    return best_child.state
+
+
 def ai_play_turn(state: State):
     print(20 * '-' + ' AI turn begins: ' + 20 * '-')
     while not state.turn_is_over:
@@ -55,17 +70,21 @@ def ai_play_turn(state: State):
         if len(next_states) == 0:
             print('Farkle!')
             return state.action_farkle()
-        state = ai_strategy(next_states)
+        # state = ai_strategy(next_states)
+
+        state = choose_next_ai(state)
         if state.last_action == Action.score:
             print('-> Action score ')
         elif state.last_action == Action.throw:
             print('-> Action throw ')
         elif state.last_action == Action.bank:
             print('-> Action bank ')
+            return state.action_bank()
         elif state.last_action == Action.hotDice:
             print('Hot dice!')
         elif state.last_action == Action.farkle:
             print('Farkle!')
+            return state.action_farkle()
         print('Next state: ' + str(state) + '\n')
     return state
 
