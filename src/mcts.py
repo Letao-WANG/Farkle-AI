@@ -12,7 +12,7 @@ class Node(object):
         self.children = []
 
     def __repr__(self):
-        return 'Scoring dice: %-15s' % self.state.state_dice.scoring_dice + ' state score: ' + str(self.state.score) +\
+        return 'Scoring dice: %-15s' % self.state.state_dice.scoring_dice + ', last action: ' + str(self.state.last_action) + ', state score: ' + str(self.state.score) +\
                ', value: ' + str(self.value) + ', number visit: ' + str(self.number_visit) + '\n'
 
     @property
@@ -36,7 +36,8 @@ class Node(object):
         return child_node
 
     def simulate(self):
-        return 1/get_num_round(self.state)
+        # return 1/pow(get_num_round(self.state), 0.1)
+        return 1 / get_num_round(self.state)
 
     def is_terminal_node(self):
         return self.state.game_over
@@ -59,7 +60,7 @@ class Node(object):
             # Farkle!
             return Node(self.state.action_farkle(), self)
         choices_weights = [
-            0.01 * c.value + c_param * np.sqrt((2 * np.log(self.n) / c.n))
+            1 * (c.value/c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
             for c in self.children
         ]
 
