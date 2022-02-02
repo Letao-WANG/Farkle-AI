@@ -1,5 +1,6 @@
 from ai_test import *
 import numpy as np
+from util import *
 
 
 class Node(object):
@@ -60,7 +61,8 @@ class Node(object):
             # Farkle!
             return Node(self.state.action_farkle(), self)
         choices_weights = [
-            1 * (c.value/c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
+            sigmoid(c.value) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
+            # 1 * (c.value/c.n) + c_param * np.sqrt((2 * np.log(self.n) / c.n))
             for c in self.children
         ]
 
